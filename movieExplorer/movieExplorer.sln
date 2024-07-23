@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "explorerApp", "explorerApp", "{C44BF0FF-C242-4849-9510-E3E06FC23E22}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2CCACD5-7425-41DD-BCD6-83F051672EC5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HttpSource", "3rd_party\HttpSource\HttpSource.vcxitems", "{EA120CBF-1307-4F46-AD3E-F2590EAD6ADE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGuiSource", "3rd_party\ImGuiSource\ImGuiSource.vcxitems", "{2672B3B3-B262-49E6-8681-3BC6D96166EF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "movieExplorerApp", "movieExplorerApp\movieExplorerApp.vcxproj", "{629BD136-43C9-48E7-9A9A-943F06090CC6}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "explorerSetup", "explorerSetup\explorerSetup.vdproj", "{0BAFA5D3-0A71-4118-8936-A6C05B6C3ADA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Debug|x64.ActiveCfg = Debug|x64
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Debug|x64.Build.0 = Debug|x64
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Debug|x86.ActiveCfg = Debug|Win32
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Debug|x86.Build.0 = Debug|Win32
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Release|x64.ActiveCfg = Release|x64
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Release|x64.Build.0 = Release|x64
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Release|x86.ActiveCfg = Release|Win32
+		{629BD136-43C9-48E7-9A9A-943F06090CC6}.Release|x86.Build.0 = Release|Win32
+		{0BAFA5D3-0A71-4118-8936-A6C05B6C3ADA}.Debug|x64.ActiveCfg = Debug
+		{0BAFA5D3-0A71-4118-8936-A6C05B6C3ADA}.Debug|x86.ActiveCfg = Debug
+		{0BAFA5D3-0A71-4118-8936-A6C05B6C3ADA}.Release|x64.ActiveCfg = Release
+		{0BAFA5D3-0A71-4118-8936-A6C05B6C3ADA}.Release|x86.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EA120CBF-1307-4F46-AD3E-F2590EAD6ADE} = {C2CCACD5-7425-41DD-BCD6-83F051672EC5}
+		{2672B3B3-B262-49E6-8681-3BC6D96166EF} = {C2CCACD5-7425-41DD-BCD6-83F051672EC5}
+		{629BD136-43C9-48E7-9A9A-943F06090CC6} = {C44BF0FF-C242-4849-9510-E3E06FC23E22}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D01072ED-8DC3-4BD8-B3A0-E3F61DF66287}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		3rd_party\ImGuiSource\ImGuiSource.vcxitems*{2672b3b3-b262-49e6-8681-3bc6d96166ef}*SharedItemsImports = 9
+		3rd_party\HttpSource\HttpSource.vcxitems*{629bd136-43c9-48e7-9a9a-943f06090cc6}*SharedItemsImports = 4
+		3rd_party\ImGuiSource\ImGuiSource.vcxitems*{629bd136-43c9-48e7-9a9a-943f06090cc6}*SharedItemsImports = 4
+		3rd_party\HttpSource\HttpSource.vcxitems*{ea120cbf-1307-4f46-ad3e-f2590ead6ade}*SharedItemsImports = 9
+	EndGlobalSection
+EndGlobal
