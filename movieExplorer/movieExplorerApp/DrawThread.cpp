@@ -5,132 +5,31 @@
 #include <thread>
 #include <string>
 #include <iostream>
+#include <unordered_set>
+#include <fstream>
 
-/*
-void DrawAppWindow(void* common_ptr)
-{
-	static bool p;
-	static int selectedMovieIndex = -1;
-	auto commonObj = (common*)common_ptr;
+std::unordered_set<std::string> favorites;
 
-	ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Movie Explorer", nullptr, ImGuiWindowFlags_NoCollapse);
-	//ImGui::Begin("App");
-
-	if (ImGui::Button("Show Favorites")) {
-		p = !p;
-	}
-
-	ImGui::SameLine();
-
-	if (ImGui::TreeNode("Genres"))
-	{
-		for (std::string genre : commonObj->genreList)
-		{
-			if (ImGui::Button(genre.c_str()))
-			{
-				std::lock_guard<std::mutex> lock(commonObj->mtx);
-				commonObj->sharedInput = genre;
-				commonObj->newInputAvailable = true;
-			}
-			commonObj->cv.notify_one();
-		}
-		ImGui::TreePop();
-	}
-
-	// Display favorites if showFavorites is true
-	if (p) {
-		ImGui::Text("Favorites:");
-		for (const auto& title : commonObj->genreList) {
-			ImGui::BulletText("%s", title.c_str());
-		}
-	}
-
-	if (commonObj->newTableData) {
-
-		if (ImGui::BeginTable("Movies", 6, ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerH))  //, flags))
-		{
-			ImGui::TableSetupColumn("Title");
-			ImGui::TableSetupColumn("Language");
-			ImGui::TableSetupColumn("Release Date");
-			ImGui::TableSetupColumn("Popularity");
-			ImGui::TableSetupColumn("");
-			ImGui::TableSetupColumn("");
-			ImGui::TableHeadersRow();
-
-			//for (auto& movie : commonObj->movieList)
-			for (int i = 0; i < commonObj->movieList.size(); ++i)
-			{
-				auto& movie = commonObj->movieList[i];
-
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text(movie.title.c_str());
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text(movie.original_language.c_str());
-				ImGui::TableSetColumnIndex(2);
-				ImGui::Text(movie.release_date.c_str());
-				ImGui::TableSetColumnIndex(3);
-				ImGui::Text(std::to_string(movie.popularity).c_str());
-
-				ImGui::TableSetColumnIndex(4);
-				if (ImGui::Button(("Details##" + std::to_string(i)).c_str())) {
-					// Toggle selection state
-					selectedMovieIndex = (selectedMovieIndex == i) ? -1 : i;
-				}
-
-				ImGui::TableSetColumnIndex(5);
-				if (ImGui::Button(("Add To Favorites##" + std::to_string(i)).c_str()))
-				{
-					//
-				}
-
-				// Insert an extra row for displaying the overview if this is the selected movie
-				if (selectedMovieIndex == i) {
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.6f, 0.5f, 1.0f));
-					ImGui::Text("Overview");
-					ImGui::PopStyleColor();
-					ImGui::SameLine();
-					ImGui::TextDisabled("(Click 'Details' again to hide)");
-					ImGui::Spacing();
-					ImGui::Separator();
-					ImGui::Spacing();
-
-					// Calculate the width for the overview text
-					float wrapWidth = ImGui::GetContentRegionAvail().x;
-
-					// Display the actual overview with custom wrapping
-					ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrapWidth);
-					ImGui::TextUnformatted(movie.overview.c_str());
-					ImGui::PopTextWrapPos();
-
-					// Add some extra spacing after the overview
-					ImGui::Spacing();
-					ImGui::Spacing();
-
-					// Span the overview across all columns
-					ImGui::TableSetColumnIndex(1);
-					ImGui::TableSetColumnIndex(2);
-					ImGui::TableSetColumnIndex(3);
-					ImGui::TableSetColumnIndex(4);
-					ImGui::TableSetColumnIndex(5);
-				}
-			}
-			ImGui::EndTable();
-		}
-	}
-
-
-	ImGui::End();
+void loadFavoritesFromFile(const std::string& filename) {
+	std::ifstream file(filename);
+	if (!file.is_open())
+		return;
+	std::string currentLine;
+	while (std::getline(file, currentLine)) 
+		favorites.insert(currentLine);
+	file.close();
 }
-*/
 
+void saveFavoritesToFile(const std::string& filename) {
+	std::ofstream file(filename);
+	for (const auto& title : favorites)
+		file << title << std::endl;
+	file.close();
+}
 
 void DrawAppWindow(void* common_ptr)
 {
-	static bool p = false;
+	static bool showFavorites = false;
 	static int selectedMovieIndex = -1;
 	auto commonObj = (common*)common_ptr;
 
@@ -141,8 +40,9 @@ void DrawAppWindow(void* common_ptr)
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3, 3));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
 
+	// Show Favorites button
 	if (ImGui::Button("Show Favorites")) {
-		p = !p;
+		showFavorites = !showFavorites;
 	}
 
 	ImGui::SameLine();
@@ -172,7 +72,7 @@ void DrawAppWindow(void* common_ptr)
 	}
 
 	// Display favorites if showFavorites is true
-	if (p) {
+	if (showFavorites) {
 		ImGui::Separator();
 
 		// Header styling
@@ -193,7 +93,7 @@ void DrawAppWindow(void* common_ptr)
 
 		ImGui::Separator();
 
-		for (const auto& title : commonObj->genreList) {
+		for (const auto& title : favorites) {
 			ImGui::BulletText("%s", title.c_str());
 		}
 
@@ -235,8 +135,14 @@ void DrawAppWindow(void* common_ptr)
 					selectedMovieIndex = (selectedMovieIndex == i) ? -1 : i;
 				}
 				ImGui::TableSetColumnIndex(5);
-				if (ImGui::Button(("Fav##" + std::to_string(i)).c_str())) {
-					// Add to favorites logic here
+				bool isFavorite = favorites.find(movie.title) != favorites.end();
+				if (ImGui::Checkbox(("Fav##" + std::to_string(i)).c_str(), &isFavorite)) {
+					if (isFavorite) {
+						favorites.insert(movie.title);
+					}
+					else {
+						favorites.erase(movie.title);
+					}
 				}
 
 				if (selectedMovieIndex == i) {	// if current row has "Details" button pressed
@@ -265,7 +171,10 @@ void DrawAppWindow(void* common_ptr)
 void DrawThread::call_Gui_main(common& common)
 {
 	initializeGenreList(common);
+	std::string filename = "favoritesLog.txt";
+	loadFavoritesFromFile(filename);
 	GuiMain(DrawAppWindow, &common);
+	saveFavoritesToFile(filename);
 	common.exit_flag = true;
 	common.cv.notify_one();
 }
