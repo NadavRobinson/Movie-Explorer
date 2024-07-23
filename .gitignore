@@ -10,7 +10,6 @@
 *.VC.VC.opendb
 
 # Build artifacts
-bin/
 obj/
 *.dll
 *.exe
