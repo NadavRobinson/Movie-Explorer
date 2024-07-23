@@ -6,8 +6,8 @@ The app demonstrates effective GUI design and internet data retrieval, making it
 
 ## Installation
 
-1. Download the setup.msi file from the releases folder.
-2. Run the setup.msi file and follow the installation wizard.
+Download the setup.exe file from the [Releases](https://github.com/NadavRobinson/movie-explorer/releases) section.
+Run the setup.exe file and follow the installation wizard.
 
 ## Usage
 
