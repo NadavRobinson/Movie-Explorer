@@ -33,12 +33,11 @@ void DrawAppWindow(void* common_ptr)
 	static int selectedMovieIndex = -1;
 	auto commonObj = (common*)common_ptr;
 
-	ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Movie Explorer", nullptr, ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin("Movie Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
 	// Add some padding and style
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3, 3));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
+	//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3, 3));
+	//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
 
 	// Show Favorites button
 	if (ImGui::Button("Show Favorites")) {
@@ -46,7 +45,6 @@ void DrawAppWindow(void* common_ptr)
 	}
 
 	ImGui::SameLine();
-
 	// Genre section
 	if (ImGui::CollapsingHeader("Genres", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -102,9 +100,9 @@ void DrawAppWindow(void* common_ptr)
 
 	// Movie list section
 	if (commonObj->newTableData) {
-		ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));	// Change color for header row background
-		ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));		// Change color for even row background
-		ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));	// Change color for odd row background
+		ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, ImVec4(0.12f, 0.12f, 0.12f, 1.00f));  //Change color for header row background. Darker Charcoal (#1E1E1E)
+		ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.17f, 0.17f, 0.17f, 1.00f));		// Change color for even row background. Very Dark Charcoal (#2C2C2C)
+		ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));	// Change color for odd row background. Slightly Lighter Charcoal (#3A3A3A)
 
 		if (ImGui::BeginTable("Movies", 6, ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerH |
 			ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX))
@@ -114,8 +112,8 @@ void DrawAppWindow(void* common_ptr)
 			ImGui::TableSetupColumn("Language", ImGuiTableColumnFlags_WidthFixed, 80.0f);
 			ImGui::TableSetupColumn("Release Date", ImGuiTableColumnFlags_WidthFixed, 100.0f);
 			ImGui::TableSetupColumn("Popularity", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-			ImGui::TableSetupColumn("Details", ImGuiTableColumnFlags_WidthFixed, 60.0f);
-			ImGui::TableSetupColumn("Favorite", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+			ImGui::TableSetupColumn("Details", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+			ImGui::TableSetupColumn("Favorite", ImGuiTableColumnFlags_WidthFixed, 80.0f);
 			ImGui::TableHeadersRow();
 
 			for (int i = 0; i < commonObj->movieList.size(); ++i)
@@ -148,9 +146,22 @@ void DrawAppWindow(void* common_ptr)
 				if (selectedMovieIndex == i) {	// if current row has "Details" button pressed
 					ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.8f, 0.8f, 1.0f));
-					ImGui::TextWrapped("Overview: %s", movie.overview.c_str());
-					ImGui::PopStyleColor();
+					float originalFontSize = ImGui::GetFont()->Scale;
+					ImGui::GetFont()->Scale *= 1.1f;
+					ImGui::PushFont(ImGui::GetFont());
+
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+					ImGui::Text("Overview");
+
+					ImGui::GetFont()->Scale = originalFontSize;
+					ImGui::PopFont();
+					//ImGui::PopStyleColor();
+					ImGui::SameLine();
+					ImGui::TextDisabled("(Click 'Details' again to hide)");
+					ImGui::Spacing();
+					ImGui::Separator();
+					ImGui::Spacing();
+					ImGui::TextWrapped("%s", movie.overview.c_str());
 					ImGui::Spacing();
 					ImGui::TableSetColumnIndex(1);
 					ImGui::TableSetColumnIndex(2);
@@ -164,7 +175,8 @@ void DrawAppWindow(void* common_ptr)
 		ImGui::PopStyleColor(3);
 	}
 
-	ImGui::PopStyleVar(2);
+	//ImGui::PopStyleVar(2);
+
 	ImGui::End();
 }
 
@@ -187,5 +199,9 @@ void DrawThread::initializeGenreList(common& common_ptr) {
 	common_ptr.genreList.push_back("Crime");
 	common_ptr.genreList.push_back("Documentary");
 	common_ptr.genreList.push_back("Drama");
+	common_ptr.genreList.push_back("Romance");
 	common_ptr.genreList.push_back("Family");
+	common_ptr.genreList.push_back("Fantasy");
+	common_ptr.genreList.push_back("History");
+	common_ptr.genreList.push_back("Horror");
 }

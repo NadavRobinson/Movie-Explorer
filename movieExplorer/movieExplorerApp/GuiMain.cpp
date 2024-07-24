@@ -93,6 +93,42 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
     bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+/*
+    // Define the colors
+    ImVec4 backgroundColor = ImVec4(0.24f, 0.05f, 0.05f, 1.00f);   // Slightly Reddish (#3D0C0C)
+    ImVec4 panelColor = ImVec4(0.29f, 0.10f, 0.10f, 1.00f);        // Dark Red (#4A1A1A)
+    ImVec4 textColor = ImVec4(0.88f, 0.88f, 0.88f, 1.00f);         // Light Gray (#E0E0E0)
+    ImVec4 primaryColor = ImVec4(0.36f, 0.18f, 0.18f, 1.00f);      // Dark Red (#5C2F2F)
+    ImVec4 secondaryColor = ImVec4(0.50f, 0.25f, 0.25f, 1.00f);    // Darker Red (#7F3F3F)
+    ImVec4 accentColor = ImVec4(0.23f, 0.05f, 0.05f, 1.00f);       // Deep Burgundy (#3B0D0D)
+
+    // Apply the theme
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.Colors[ImGuiCol_WindowBg] = backgroundColor;
+    style.Colors[ImGuiCol_Text] = textColor;
+    style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f); // Gray for disabled text
+    style.Colors[ImGuiCol_Button] = primaryColor;
+    style.Colors[ImGuiCol_ButtonHovered] = secondaryColor;           // Darker Red for hover effect
+    style.Colors[ImGuiCol_ButtonActive] = accentColor;              // Deep Burgundy for active state
+    style.Colors[ImGuiCol_FrameBg] = panelColor;
+    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(panelColor.x * 1.1f, panelColor.y * 1.1f, panelColor.z * 1.1f, 0.68f); // Slightly lighter on hover
+    style.Colors[ImGuiCol_FrameBgActive] = primaryColor;
+*/
+    // Set custom colors and style for a classic look
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.22f, 0.27f, 1.0f));  // Dark grey background
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));      // Light grey text
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.4f, 0.45f, 0.55f, 1.0f));  // Subdued blue-grey buttons
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.5f, 0.55f, 0.65f, 1.0f)); // Lighter blue-grey on hover
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.3f, 0.35f, 0.45f, 1.0f));  // Darker blue-grey on click
+    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.4f, 0.45f, 0.55f, 1.0f));  // Blue-grey header
+    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.5f, 0.55f, 0.65f, 1.0f)); // Lighter blue-grey header on hover
+    ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.3f, 0.35f, 0.45f, 1.0f));  // Darker blue-grey header on click
+
+    // Set padding
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 5));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20, 10));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.0f);
 
     // Main loop
     bool done = false;
@@ -138,6 +174,11 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
         ImGui_ImplDX9_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
+
+
+        ImGuiIO& io = ImGui::GetIO(); // Get the IO object to access display size
+        ImGui::SetNextWindowPos(ImVec2(0, 0)); // Position the window at the top-left corner
+        ImGui::SetNextWindowSize(io.DisplaySize); // Set the window size to the display size
 
         drawfunction(obj_ptr);
 
