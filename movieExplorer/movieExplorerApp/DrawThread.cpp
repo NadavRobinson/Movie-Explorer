@@ -37,6 +37,9 @@ void DrawAppWindow(void* common_ptr)
 	auto commonObj = (common*)common_ptr;
 	
 	ImGui::Begin("Movie Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
+	// Set the window position to the top-left corner
+	ImGui::SetWindowPos(ImVec2(0, 0));
+	// Set the window size to the full display size
 	ImGui::SetWindowSize(ImGui::GetIO().DisplaySize);
 
 	// Setup a menu bar for a close button in the top right of the screen
