@@ -1,4 +1,4 @@
-#include "DrawThread.h"
+﻿#include "DrawThread.h"
 #include "GuiMain.h"
 #include "../3rd_party/ImGuiSource/imgui.h"
 #include <stdlib.h>
@@ -7,6 +7,7 @@
 #include <iostream>
 #include <unordered_set>
 #include <fstream>
+#include <windows.h> // // Include Windows API for PostQuitMessage function
 
 std::unordered_set<std::string> favorites;
 
@@ -29,15 +30,55 @@ void saveFavoritesToFile(const std::string& filename) {
 
 void DrawAppWindow(void* common_ptr)
 {
+	static char searchBuffer[128] = "";
 	static bool showFavorites = false;
+	static int currentGenreIndex = -1; // Start with -1 to indicate no selection
 	static int selectedMovieIndex = -1;
 	auto commonObj = (common*)common_ptr;
+	
+	ImGui::Begin("Movie Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
+	ImGui::SetWindowSize(ImGui::GetIO().DisplaySize);
 
-	ImGui::Begin("Movie Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	// Setup a menu bar for a close button in the top right of the screen
+	if (ImGui::BeginMenuBar())
+	{
 
-	// Add some padding and style
-	//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3, 3));
-	//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
+		// Center title
+		float windowWidth = ImGui::GetWindowWidth();
+		float textWidth = ImGui::CalcTextSize("Movie Explorer").x;
+		float centerPos = (windowWidth - textWidth) * 0.5f;
+
+		ImGui::SetCursorPosX(centerPos);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.843f, 0.0f, 1.0f)); // Gold color
+		ImGui::Text("Movie Explorer");
+		ImGui::PopStyleColor();
+
+		// Right-side position
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 67);
+
+		// Add the button to the menu bar
+		if (ImGui::Button("Close"))
+		{
+			::PostQuitMessage(0);
+		}
+		ImGui::EndMenuBar();
+	}
+
+	ImGui::Separator();
+	ImGui::SetNextItemWidth(500);
+	bool searchTriggered = ImGui::InputTextWithHint("##SearchBar", "Search Movie", searchBuffer, IM_ARRAYSIZE(searchBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
+	ImGui::SameLine();
+	if (ImGui::Button("Search") || searchTriggered) {
+		
+	}
+
+	ImGui::SameLine();
+	if (ImGui::Button("Clear Table")) {
+		commonObj->newTableData = false;
+		currentGenreIndex = -1;
+	}
+
+	ImGui::Separator();
 
 	// Show Favorites button
 	if (ImGui::Button("Show Favorites")) {
@@ -45,28 +86,29 @@ void DrawAppWindow(void* common_ptr)
 	}
 
 	ImGui::SameLine();
-	// Genre section
-	if (ImGui::CollapsingHeader("Genres", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		ImGui::Indent(10);
-		int buttonsPerRow = 4;
-		int buttonCount = 0;
-		for (const std::string& genre : commonObj->genreList)
-		{
-			if (buttonCount > 0 && buttonCount % buttonsPerRow != 0)
-				ImGui::SameLine();
 
-			if (ImGui::Button(genre.c_str(), ImVec2(150, 30)))
+	// Genre selection
+	const char* currentGenre = (currentGenreIndex >= 0) ? commonObj->genreList[currentGenreIndex].c_str() : "Select a genre";
+
+	ImGui::SetNextItemWidth(170); // Set the width of the combo to 150 pixels
+	if (ImGui::BeginCombo("##GenreCombo", currentGenre))
+	{
+		for (int i = 0; i < commonObj->genreList.size(); i++)
+		{
+			bool isSelected = (currentGenreIndex == i);
+			if (ImGui::Selectable(commonObj->genreList[i].c_str(), isSelected))
 			{
+				currentGenreIndex = i;
 				std::lock_guard<std::mutex> lock(commonObj->mtx);
-				commonObj->sharedInput = genre;
-				commonObj->newInputAvailable = true;
+				commonObj->sharedInput = commonObj->genreList[i];
+				commonObj->newGenreAvailable = true;
 				commonObj->cv.notify_one();
 			}
-			buttonCount++;
+			if (isSelected)
+				// Focus on the current selected genre when clicked on the combo
+				ImGui::SetItemDefaultFocus();
 		}
-		ImGui::Unindent(10);
-		ImGui::Spacing();
+		ImGui::EndCombo();
 	}
 
 	// Display favorites if showFavorites is true
@@ -97,7 +139,7 @@ void DrawAppWindow(void* common_ptr)
 
 		ImGui::Separator();
 	}
-
+	
 	// Movie list section
 	if (commonObj->newTableData) {
 		ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, ImVec4(0.12f, 0.12f, 0.12f, 1.00f));  //Change color for header row background. Darker Charcoal (#1E1E1E)
@@ -149,13 +191,11 @@ void DrawAppWindow(void* common_ptr)
 					float originalFontSize = ImGui::GetFont()->Scale;
 					ImGui::GetFont()->Scale *= 1.1f;
 					ImGui::PushFont(ImGui::GetFont());
-
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
 					ImGui::Text("Overview");
-
 					ImGui::GetFont()->Scale = originalFontSize;
 					ImGui::PopFont();
-					//ImGui::PopStyleColor();
+
 					ImGui::SameLine();
 					ImGui::TextDisabled("(Click 'Details' again to hide)");
 					ImGui::Spacing();
@@ -174,8 +214,6 @@ void DrawAppWindow(void* common_ptr)
 		}
 		ImGui::PopStyleColor(3);
 	}
-
-	//ImGui::PopStyleVar(2);
 
 	ImGui::End();
 }

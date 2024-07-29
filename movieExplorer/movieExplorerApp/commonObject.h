@@ -17,7 +17,7 @@ struct common {
 	std::condition_variable cv;
 	std::mutex mtx;
 	std::string sharedInput;
-	std::atomic_bool newInputAvailable = false;
+	std::atomic_bool newGenreAvailable = false;
 	std::atomic_bool newTableData = false;
 	std::atomic_bool exit_flag = false;
 };

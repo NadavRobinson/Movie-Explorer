@@ -7,26 +7,28 @@
 void DownloadThread::download(common& common_ptr) {
 	std::string api_key = "783d7e8d1b46831e05f602fb0da3311e";
 	get_genre_ids(api_key, common_ptr);
-
 	std::string check = "";
 	while (true) {
 		std::unique_lock<std::mutex> lock(common_ptr.mtx);
-		common_ptr.cv.wait(lock, [&] { return common_ptr.newInputAvailable.load() || common_ptr.exit_flag; });
+		common_ptr.cv.wait(lock, [&] { return common_ptr.newGenreAvailable.load() || common_ptr.exit_flag; });
 
 		if (common_ptr.exit_flag)
 			break;
 
 		std::string input = common_ptr.sharedInput;
-		common_ptr.newInputAvailable = false;
+		common_ptr.newGenreAvailable = false;
 		lock.unlock();
 
 		if (input != check) {
+			// Another genre was clicked
 			check = input;
 			common_ptr.movieList.clear();
 		}
-		else
+		else {
+			// Same genre clicked twice
+			common_ptr.newTableData = true;
 			continue;
-
+		}
 		if (!input.empty()) {
 			int genre_id = genreIDs[input];
 			httplib::SSLClient cli("api.themoviedb.org");
@@ -44,7 +46,6 @@ void DownloadThread::download(common& common_ptr) {
 					common_ptr.movieList.push_back(m);
 				}
 				common_ptr.newTableData = true;
-
 			}
 		}
 	}

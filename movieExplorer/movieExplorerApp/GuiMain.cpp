@@ -38,7 +38,23 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX9 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
+    //HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX9 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
+
+    // Get monitor information for fullscreen
+    HMONITOR hMonitor = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO mi;
+    mi.cbSize = sizeof(mi);
+    GetMonitorInfo(hMonitor, &mi);
+
+    // Create fullscreen window
+    HWND hwnd = ::CreateWindowW(
+        wc.lpszClassName, L"Dear ImGui DirectX9 Example",
+        WS_POPUP, // WS_POPUP for fullscreen
+        mi.rcMonitor.left, mi.rcMonitor.top,
+        mi.rcMonitor.right - mi.rcMonitor.left,
+        mi.rcMonitor.bottom - mi.rcMonitor.top,
+        nullptr, nullptr, wc.hInstance, nullptr
+    );
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -127,7 +143,7 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
     // Set padding
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 5));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20, 10));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(15, 10));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.0f);
 
     // Main loop
@@ -146,7 +162,7 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
         }
         if (done)
             break;
-
+        
         // Handle lost D3D9 device
         if (g_DeviceLost)
         {
@@ -176,9 +192,9 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
         ImGui::NewFrame();
 
 
-        ImGuiIO& io = ImGui::GetIO(); // Get the IO object to access display size
-        ImGui::SetNextWindowPos(ImVec2(0, 0)); // Position the window at the top-left corner
-        ImGui::SetNextWindowSize(io.DisplaySize); // Set the window size to the display size
+        //ImGuiIO& io = ImGui::GetIO(); // Get the IO object to access display size
+        //ImGui::SetNextWindowPos(ImVec2(0, 0)); // Position the window at the top-left corner
+        //ImGui::SetNextWindowSize(io.DisplaySize); // Set the window size to the display size
 
         drawfunction(obj_ptr);
 
