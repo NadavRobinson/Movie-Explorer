@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <fstream>
 #include <windows.h> // // Include Windows API for PostQuitMessage function
+#include <algorithm>
 
 std::unordered_set<std::string> favorites;
 
@@ -72,7 +73,14 @@ void DrawAppWindow(void* common_ptr)
 	bool searchTriggered = ImGui::InputTextWithHint("##SearchBar", "Search Movie", searchBuffer, IM_ARRAYSIZE(searchBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
 	ImGui::SameLine();
 	if (ImGui::Button("Search") || searchTriggered) {
-		
+		if (searchBuffer[0] != '\0') {
+			std::lock_guard<std::mutex> lock(commonObj->mtx);
+			commonObj->sharedInput = searchBuffer;
+			commonObj->newSearchAvailable = true;
+			commonObj->cv.notify_one();
+			searchBuffer[0] = '\0';
+			currentGenreIndex = -1;
+		}
 	}
 
 	ImGui::SameLine();
@@ -149,18 +157,46 @@ void DrawAppWindow(void* common_ptr)
 		ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.17f, 0.17f, 0.17f, 1.00f));		// Change color for even row background. Very Dark Charcoal (#2C2C2C)
 		ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));	// Change color for odd row background. Slightly Lighter Charcoal (#3A3A3A)
 
+		int sortColumn = -1;
+		bool sortAscending = true;
+
 		if (ImGui::BeginTable("Movies", 6, ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerH |
-			ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX))
+			ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX | ImGuiTableFlags_Sortable))
 		{
-			// Setup columns with specific sizing behaviors
-			ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 0.4f);
-			ImGui::TableSetupColumn("Language", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-			ImGui::TableSetupColumn("Release Date", ImGuiTableColumnFlags_WidthFixed, 100.0f);
-			ImGui::TableSetupColumn("Popularity", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-			ImGui::TableSetupColumn("Details", ImGuiTableColumnFlags_WidthFixed, 70.0f);
-			ImGui::TableSetupColumn("Favorite", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			// Setup columns
+			ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_DefaultSort, 0.4f);
+			ImGui::TableSetupColumn("Language", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort, 80.0f);
+			ImGui::TableSetupColumn("Release Date", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort, 100.0f);
+			ImGui::TableSetupColumn("Popularity", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort, 80.0f);
+
+			ImGui::TableSetupColumn("Details", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 70.0f);
+			ImGui::TableSetupColumn("Favorite", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 80.0f);
 			ImGui::TableHeadersRow();
 
+			// Check if sorting is needed
+			ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs();
+			if (sorts_specs && sorts_specs->SpecsDirty)
+			{
+				sortColumn = sorts_specs->Specs->ColumnIndex;
+				sortAscending = sorts_specs->Specs->SortDirection == ImGuiSortDirection_Ascending;
+
+				std::sort(commonObj->movieList.begin(), commonObj->movieList.end(),
+					[&](const auto& a, const auto& b)
+					{
+						switch (sortColumn)
+						{
+						case 0: return sortAscending ? a.title < b.title : a.title > b.title;
+						case 1: return sortAscending ? a.original_language < b.original_language : a.original_language > b.original_language;
+						case 2: return sortAscending ? a.release_date < b.release_date : a.release_date > b.release_date;
+						case 3: return sortAscending ? a.popularity < b.popularity : a.popularity > b.popularity;
+						default: return false;
+						}
+					});
+
+				sorts_specs->SpecsDirty = false;
+			}
+
+			// Render table rows
 			for (int i = 0; i < commonObj->movieList.size(); ++i)
 			{
 				auto& movie = commonObj->movieList[i];

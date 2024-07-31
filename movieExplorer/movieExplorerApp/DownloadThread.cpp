@@ -8,31 +8,44 @@ void DownloadThread::download(common& common_ptr) {
 	std::string api_key = "783d7e8d1b46831e05f602fb0da3311e";
 	get_genre_ids(api_key, common_ptr);
 	std::string check = "";
+	std::string API;
 	while (true) {
 		std::unique_lock<std::mutex> lock(common_ptr.mtx);
-		common_ptr.cv.wait(lock, [&] { return common_ptr.newGenreAvailable.load() || common_ptr.exit_flag; });
+		common_ptr.cv.wait(lock, [&] { return common_ptr.newGenreAvailable.load() || common_ptr.newSearchAvailable.load() || common_ptr.exit_flag; });
 
 		if (common_ptr.exit_flag)
 			break;
 
 		std::string input = common_ptr.sharedInput;
-		common_ptr.newGenreAvailable = false;
+		
 		lock.unlock();
 
 		if (input != check) {
-			// Another genre was clicked
+			// Another genre or movie was entered
 			check = input;
 			common_ptr.movieList.clear();
 		}
 		else {
-			// Same genre clicked twice
+			// Same genre or movie was entered twice
 			common_ptr.newTableData = true;
 			continue;
 		}
-		if (!input.empty()) {
+		
+		if (common_ptr.newGenreAvailable) {
 			int genre_id = genreIDs[input];
+			API = "/3/discover/movie?api_key=" + api_key + "&with_genres=" + std::to_string(genre_id);
+			common_ptr.newGenreAvailable = false;
+
+		}
+
+		else if(common_ptr.newSearchAvailable) {
+			API = "/3/search/movie?query=" + input + "&api_key=" + api_key;
+			common_ptr.newSearchAvailable = false;
+		}
+
+		if (!input.empty()) {
 			httplib::SSLClient cli("api.themoviedb.org");
-			auto res = cli.Get(("/3/discover/movie?api_key=" + api_key + "&with_genres=" + std::to_string(genre_id)).c_str());
+			auto res = cli.Get(API);
 			if (res && res->status == 200) {
 				auto json_result = nlohmann::json::parse(res->body);
 
@@ -46,6 +59,9 @@ void DownloadThread::download(common& common_ptr) {
 					common_ptr.movieList.push_back(m);
 				}
 				common_ptr.newTableData = true;
+			}
+			else {
+				std::cout << "Error: " << (res ? res->status : -1) << std::endl;
 			}
 		}
 	}

@@ -18,6 +18,7 @@ struct common {
 	std::mutex mtx;
 	std::string sharedInput;
 	std::atomic_bool newGenreAvailable = false;
+	std::atomic_bool newSearchAvailable = false;
 	std::atomic_bool newTableData = false;
 	std::atomic_bool exit_flag = false;
 };
