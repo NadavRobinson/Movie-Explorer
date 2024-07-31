@@ -153,25 +153,29 @@ void DrawAppWindow(void* common_ptr)
 	
 	// Movie list section
 	if (commonObj->newTableData) {
-		ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, ImVec4(0.12f, 0.12f, 0.12f, 1.00f));  //Change color for header row background. Darker Charcoal (#1E1E1E)
-		ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.17f, 0.17f, 0.17f, 1.00f));		// Change color for even row background. Very Dark Charcoal (#2C2C2C)
-		ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));	// Change color for odd row background. Slightly Lighter Charcoal (#3A3A3A)
+		ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, ImVec4(0.12f, 0.12f, 0.12f, 1.00f));  // Change color for header row background. Darker Charcoal (#1E1E1E)
+		ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt, ImVec4(0.17f, 0.17f, 0.17f, 1.00f));		// Change color for even row background. Very Dark Charcoal (#2C2C2C)
+		ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));	// Change color for odd row background. Slightly Lighter Charcoal (#3A3A3A)
 
 		int sortColumn = -1;
 		bool sortAscending = true;
 
-		if (ImGui::BeginTable("Movies", 6, ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerH |
+		if (ImGui::BeginTable("Movies", 6, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerH |
 			ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX | ImGuiTableFlags_Sortable))
 		{
 			// Setup columns
-			ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_DefaultSort, 0.4f);
-			ImGui::TableSetupColumn("Language", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort, 80.0f);
-			ImGui::TableSetupColumn("Release Date", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort, 100.0f);
-			ImGui::TableSetupColumn("Popularity", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort, 80.0f);
+			ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthFixed, 1200.0f);
+			ImGui::TableSetupColumn("Language", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Release Date", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Popularity", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Details", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoSort);
+			ImGui::TableSetupColumn("Favorite", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoSort);
 
-			ImGui::TableSetupColumn("Details", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 70.0f);
-			ImGui::TableSetupColumn("Favorite", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 80.0f);
+			// Add some padding to the header cells
+			float cellPaddingY = ImGui::GetStyle().CellPadding.y;
+			ImGui::GetStyle().CellPadding.y = 6.0f;
 			ImGui::TableHeadersRow();
+			ImGui::GetStyle().CellPadding.y = cellPaddingY;
 
 			// Check if sorting is needed
 			ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs();
