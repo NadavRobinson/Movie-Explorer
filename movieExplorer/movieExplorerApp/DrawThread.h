@@ -1,15 +1,19 @@
 #pragma once
+
 #include <vector>
 #include "commonObject.h"
 
+// The DrawThread class handles the graphical user interface (GUI) operations.
+// It interacts with the common object to perform GUI-related tasks.
 class DrawThread
 {
 public:
-	//void operator()(CommonObjects& common);
-	//void SetUrl(std::string_view new_url);
+    // Public method to initiate the main GUI operations.
+    // It takes a reference to a common object.
+    void call_Gui_main(common& common);
 
-	void call_Gui_main(common& common);
 private:
-	//std::string _download_url;
-	void initializeGenreList(common& common);
+    // Private method to initialize the genre list.
+    // It takes a reference to a common object and sets up the genre data for GUI display.
+    void initializeGenreList(common& common);
 };

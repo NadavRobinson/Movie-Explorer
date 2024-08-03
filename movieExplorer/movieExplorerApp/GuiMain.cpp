@@ -15,6 +15,7 @@
 #include "GuiMain.h"
 #include <thread>
 #include <chrono>
+#include <iostream>
 using namespace std::chrono_literals;
 
 // Data
@@ -38,7 +39,6 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
-    //HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX9 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
 
     // Get monitor information for fullscreen
     HMONITOR hMonitor = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
@@ -103,33 +103,13 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
         0x0590, 0x05FF, // Greek and Coptic
         0,
     };
-    ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\david.ttf", 18.0f, nullptr, &ranges[0]);
+    ImFont* font = io.Fonts->AddFontFromFileTTF("GeneralSans-VariableItalic.ttf", 20.0f, nullptr, &ranges[0]);
     IM_ASSERT(font != nullptr);
     // Our state
     bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-/*
-    // Define the colors
-    ImVec4 backgroundColor = ImVec4(0.24f, 0.05f, 0.05f, 1.00f);   // Slightly Reddish (#3D0C0C)
-    ImVec4 panelColor = ImVec4(0.29f, 0.10f, 0.10f, 1.00f);        // Dark Red (#4A1A1A)
-    ImVec4 textColor = ImVec4(0.88f, 0.88f, 0.88f, 1.00f);         // Light Gray (#E0E0E0)
-    ImVec4 primaryColor = ImVec4(0.36f, 0.18f, 0.18f, 1.00f);      // Dark Red (#5C2F2F)
-    ImVec4 secondaryColor = ImVec4(0.50f, 0.25f, 0.25f, 1.00f);    // Darker Red (#7F3F3F)
-    ImVec4 accentColor = ImVec4(0.23f, 0.05f, 0.05f, 1.00f);       // Deep Burgundy (#3B0D0D)
 
-    // Apply the theme
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.Colors[ImGuiCol_WindowBg] = backgroundColor;
-    style.Colors[ImGuiCol_Text] = textColor;
-    style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f); // Gray for disabled text
-    style.Colors[ImGuiCol_Button] = primaryColor;
-    style.Colors[ImGuiCol_ButtonHovered] = secondaryColor;           // Darker Red for hover effect
-    style.Colors[ImGuiCol_ButtonActive] = accentColor;              // Deep Burgundy for active state
-    style.Colors[ImGuiCol_FrameBg] = panelColor;
-    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(panelColor.x * 1.1f, panelColor.y * 1.1f, panelColor.z * 1.1f, 0.68f); // Slightly lighter on hover
-    style.Colors[ImGuiCol_FrameBgActive] = primaryColor;
-*/
     // Set custom colors and style for a classic look
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.22f, 0.27f, 1.0f));  // Dark grey background
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));      // Light grey text
@@ -192,12 +172,8 @@ int GuiMain(drawcallback drawfunction, void* obj_ptr)
         ImGui::NewFrame();
 
 
-        //ImGuiIO& io = ImGui::GetIO(); // Get the IO object to access display size
-        //ImGui::SetNextWindowPos(ImVec2(0, 0)); // Position the window at the top-left corner
-        //ImGui::SetNextWindowSize(io.DisplaySize); // Set the window size to the display size
-
         drawfunction(obj_ptr);
-
+ 
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()!
         // You can browse its code to learn more about Dear ImGui!).
